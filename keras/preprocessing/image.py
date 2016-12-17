@@ -320,9 +320,15 @@ class ImageDataGenerator(object):
         # x is a single image, so it doesn't have image number at index 0
         img_channel_index = self.channel_index - 1
         if self.samplewise_center:
-            x -= np.mean(x, axis=img_channel_index, keepdims=True)
+            if x.shape[img_channel_index] == 1:  # gray-scale/1-channel images.
+                x -= np.mean(x)
+            else:
+                x -= np.mean(x, axis=img_channel_index, keepdims=True)
         if self.samplewise_std_normalization:
-            x /= (np.std(x, axis=img_channel_index, keepdims=True) + 1e-7)
+            if x.shape[img_channel_index] == 1:  # gray-scale/1-channel images.
+                x /= (np.std(x) + 1e-7)
+            else:
+                x /= (np.std(x, axis=img_channel_index, keepdims=True) + 1e-7)
 
         if self.featurewise_center:
             if self.mean is not None:
